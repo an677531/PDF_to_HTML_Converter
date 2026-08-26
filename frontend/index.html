@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <title>
+        Accessible News Converter
+    </title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+
+<body>
+
+
+    <header>
+
+        <h1>
+            AI Accessible Article Converter
+        </h1>
+
+    </header>
+
+
+    <div class="controls">
+
+        <input type="file" id="pdf">
+
+        <button id="convert">
+            Convert
+        </button>
+
+
+    </div>
+
+
+
+    <div class="workspace">
+
+
+        <section>
+
+            <h2>
+                Original PDF
+            </h2>
+
+            <iframe id="pdfViewer"></iframe>
+
+        </section>
+
+
+
+        <section>
+
+            <h2>
+                Accessible HTML
+            </h2>
+
+
+            <div id="preview"></div>
+
+
+        </section>
+
+
+    </div>
+
+
+
+    <section class="issues">
+
+        <h2>
+            Review Issues
+        </h2>
+
+
+        <ul id="issues">
+
+        </ul>
+
+
+    </section>
+
+
+    <script src="app.js"></script>
+
+</body>
+
+</html>
