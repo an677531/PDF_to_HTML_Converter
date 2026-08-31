@@ -1,18 +1,24 @@
 import json
 
 from ollama_client import ask_ollama
+from image_association import associate_images_with_captions
+from image_alt_text import generate_alt_text_for_image
 
 
 def format_article(document):
 
+    # Associate images with nearby captions
+    document_with_associations = associate_images_with_captions(document)
+
     simplified_document = {
-        "metadata": document["metadata"],
+        "metadata": document_with_associations["metadata"],
         "pages": []
     }
     source_blocks = []
     source_blocks_by_page = []
+    page_image_associations = []  # Track image associations for HTML building
 
-    for page_number, page in enumerate(document["pages"], start=1):
+    for page_number, page in enumerate(document_with_associations["pages"], start=1):
 
         page_data = {
             "page_number": page_number,
@@ -21,6 +27,7 @@ def format_article(document):
 
         text_index = 0
         page_source_blocks = []
+        page_associations = page.get("image_associations", {})
 
         for block in page["blocks"]:
 
@@ -47,11 +54,14 @@ def format_article(document):
                     "type": "image",
                     "index": block["index"],
                     "width": block["width"],
-                    "height": block["height"]
+                    "height": block["height"],
+                    "filename": block["filename"],
+                    "path": block["path"]
                 })
 
         simplified_document["pages"].append(page_data)
         source_blocks_by_page.append(page_source_blocks)
+        page_image_associations.append(page_associations)
 
     classifications = {"blocks": []}
 
@@ -59,7 +69,12 @@ def format_article(document):
         page_classifications = classify_source_blocks(page_source_blocks)
         classifications["blocks"].extend(page_classifications["blocks"])
 
-    return build_html(classifications, source_blocks)
+    return build_html(
+        classifications,
+        source_blocks,
+        document_with_associations,
+        page_image_associations
+    )
 
 
 def classify_source_blocks(source_blocks):
@@ -227,7 +242,7 @@ def clean_json_response(result):
     return cleaned
 
 
-def build_html(data, source_blocks=None):
+def build_html(data, source_blocks=None, document_with_associations=None, page_image_associations=None):
 
     html = ["<article>"]
 
@@ -244,6 +259,30 @@ def build_html(data, source_blocks=None):
         }
         for block in data.get("blocks", [])
     ]
+
+    # Build a map of which text block IDs are captions for which images
+    caption_to_image_map = {}  # block_id -> image_info
+
+    if document_with_associations and page_image_associations:
+        for page_num, page in enumerate(document_with_associations.get("pages", [])):
+            page_associations = page_image_associations[page_num] if page_num < len(page_image_associations) else {}
+
+            for img_idx, assoc in page_associations.items():
+                for caption_info in assoc.get("captions", []):
+                    # Build block ID for this caption
+                    original_idx = caption_info.get("original_index")
+                    # Count text blocks up to this index
+                    text_count = 0
+                    for i, block in enumerate(page.get("blocks", [])):
+                        if block.get("type") == "text":
+                            text_count += 1
+                            if i == original_idx:
+                                block_id = f"page-{page_num + 1}-text-{text_count}"
+                                caption_to_image_map[block_id] = {
+                                    "image": assoc["image"],
+                                    "caption_text": caption_info.get("text", "")
+                                }
+                                break
 
     for source_block in blocks_to_render:
 
@@ -280,9 +319,32 @@ def build_html(data, source_blocks=None):
 
         elif block_type == "caption":
 
-            html.append(
-                f'<figure><figcaption>{escape_html(text)}</figcaption></figure>'
-            )
+            # Check if this caption is associated with an image
+            block_id = source_block.get("id")
+            if block_id in caption_to_image_map:
+                image_info = caption_to_image_map[block_id]
+                image_block = image_info["image"]
+
+                # Generate alt text for the image
+                image_path = image_block["path"]
+                alt_text_result = generate_alt_text_for_image(image_path)
+                alt_text = alt_text_result.get("alt_text", "")
+
+                # Escape alt text for safety
+                alt_text_escaped = escape_html(alt_text)
+
+                # Render figure with image and caption
+                html.append(
+                    f'<figure><img src="images/{image_block["filename"]}" '
+                    f'width="{image_block["width"]}" '
+                    f'height="{image_block["height"]}" '
+                    f'alt="{alt_text_escaped}"><figcaption>{escape_html(text)}</figcaption></figure>'
+                )
+            else:
+                # Orphan caption with no associated image
+                html.append(
+                    f'<figure><figcaption>{escape_html(text)}</figcaption></figure>'
+                )
 
         elif block_type == "list":
 

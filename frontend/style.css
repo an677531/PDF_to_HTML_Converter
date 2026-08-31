@@ -151,6 +151,18 @@ button:active {
     border-radius: 8px;
 }
 
+#preview figure {
+    margin: 1.5rem 0;
+    text-align: center;
+}
+
+#preview figcaption {
+    margin-top: 0.5rem;
+    font-style: italic;
+    color: #666;
+    font-size: 0.95rem;
+}
+
 /***********Issues***********/
 
 .issues {
@@ -169,6 +181,30 @@ button:active {
     background: #fff8e6;
     border-radius: 8px;
     color: #5f4b00;
+}
+
+#issues .issue-error {
+    border-left-color: #dc2626;
+    background: #fee2e2;
+    color: #7f1d1d;
+}
+
+#issues .issue-warning {
+    border-left-color: #f59e0b;
+    background: #fff8e6;
+    color: #5f4b00;
+}
+
+#issues .issue-info {
+    border-left-color: #3b82f6;
+    background: #eff6ff;
+    color: #1e3a8a;
+}
+
+#issues .issue-success {
+    border-left-color: #10b981;
+    background: #ecfdf5;
+    color: #065f46;
 }
 
 /***********Scrollbar***********/

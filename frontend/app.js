@@ -43,8 +43,12 @@ UPLOAD -> REQUEST -> DISPLAY RESULTS
 ===========================================================
 */
 const button = document.getElementById("convert");
+const downloadLink = document.getElementById("downloadBundle");
 
 button.onclick = async () => {
+
+    downloadLink.style.display = "none";
+    downloadLink.href = "#";
 
     const file = document.getElementById("pdf").files[0];
 
@@ -61,8 +65,12 @@ button.onclick = async () => {
 
     try {
 
+        // Show loading state
+        document.getElementById("preview").textContent = "Converting PDF...";
+        document.getElementById("issues").innerHTML = "";
+
         const response = await fetch(
-            "http://localhost:5001/convert",
+            "/convert",
             {
                 method: "POST",
                 body: form
@@ -89,15 +97,38 @@ button.onclick = async () => {
 
         document.getElementById("preview").innerHTML = result.html;
 
-        console.log(result.issues);
+        if (result.bundle && result.bundle.download_url) {
+            downloadLink.href = result.bundle.download_url;
+            downloadLink.style.display = "inline";
+            downloadLink.textContent = `Download HTML bundle (${result.bundle.image_count} images)`;
+        }
+
+        // Display issues
+        const issuesList = document.getElementById("issues");
+        if (result.issues && result.issues.length > 0) {
+            result.issues.forEach(issue => {
+                const li = document.createElement("li");
+                li.className = `issue issue-${issue.severity}`;
+                li.innerHTML = `<strong>${issue.severity}:</strong> ${issue.message}`;
+                issuesList.appendChild(li);
+            });
+        } else {
+            const li = document.createElement("li");
+            li.textContent = "No accessibility issues found!";
+            li.className = "issue issue-success";
+            issuesList.appendChild(li);
+        }
+
+        console.log("Conversion complete. Issues:", result.issues);
 
     } catch (err) {
 
         console.error(err);
 
-        document.getElementById("preview").textContent = err.message;
+        document.getElementById("preview").textContent = "Error: " + err.message;
+        document.getElementById("issues").innerHTML = "";
 
-        alert("Unable to convert PDF.");
+        alert("Unable to convert PDF: " + err.message);
 
     }
 
