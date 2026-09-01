@@ -27,14 +27,23 @@
 
     <div class="controls">
 
-        <input type="file" id="pdf">
+        <input type="file" id="pdf" multiple accept=".pdf">
 
         <button id="convert">
             Convert
         </button>
 
+        <div id="loadingIndicator" class="loading-indicator" style="display: none;">
+            <div class="spinner"></div>
+            <span id="loadingText">Processing PDF...</span>
+        </div>
+
         <a id="downloadBundle" href="#" style="display: none;" download>Download HTML bundle</a>
 
+    </div>
+
+    <div id="conversionProgress" class="conversion-progress" style="display: none;">
+        <div id="progressItems"></div>
     </div>
 
 
