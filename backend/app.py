@@ -108,10 +108,6 @@ def serve_image(filename):
 @app.route("/convert", methods=["POST"])
 def convert():
 
-    # -----------------------------------------
-    # Check that a PDF was uploaded
-    # -----------------------------------------
-
     if "pdf" not in request.files:
         return jsonify({
             "error": "No PDF file uploaded"
@@ -131,39 +127,18 @@ def convert():
 
     try:
 
-        # -----------------------------------------
-        # STEP 1: Extract PDF
-        # -----------------------------------------
-
         pdf_bytes = pdf.read()
 
         document = extract_pdf(pdf_bytes)
-
-        # -----------------------------------------
-        # STEP 2: Ask AI to create accessible HTML
-        # -----------------------------------------
 
         html = format_article(document)
 
         # Save a self-contained bundle for export/download.
         export_bundle = save_html_bundle(html, document)
 
-        # -----------------------------------------
-        # Fix image paths for frontend context
-        # Replace "images/filename" with "/extracted_images/filename"
-        # -----------------------------------------
-
         browser_html = html.replace('src="images/', 'src="/extracted_images/')
 
-        # -----------------------------------------
-        # STEP 3: Review the generated HTML
-        # -----------------------------------------
-
         issues = review_html(browser_html)
-
-        # -----------------------------------------
-        # STEP 4: Send everything to frontend
-        # -----------------------------------------
 
         return jsonify({
             "html": browser_html,

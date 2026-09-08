@@ -7,7 +7,6 @@ from image_alt_text import generate_alt_text_for_image
 
 def format_article(document):
 
-    # Associate images with nearby captions
     document_with_associations = associate_images_with_captions(document)
 
     simplified_document = {
@@ -16,7 +15,7 @@ def format_article(document):
     }
     source_blocks = []
     source_blocks_by_page = []
-    page_image_associations = []  # Track image associations for HTML building
+    page_image_associations = []
 
     for page_number, page in enumerate(document_with_associations["pages"], start=1):
 
@@ -260,8 +259,7 @@ def build_html(data, source_blocks=None, document_with_associations=None, page_i
         for block in data.get("blocks", [])
     ]
 
-    # Build a map of which text block IDs are captions for which images
-    caption_to_image_map = {}  # block_id -> image_info
+    caption_to_image_map = {}
 
     if document_with_associations and page_image_associations:
         for page_num, page in enumerate(document_with_associations.get("pages", [])):
@@ -269,9 +267,7 @@ def build_html(data, source_blocks=None, document_with_associations=None, page_i
 
             for img_idx, assoc in page_associations.items():
                 for caption_info in assoc.get("captions", []):
-                    # Build block ID for this caption
                     original_idx = caption_info.get("original_index")
-                    # Count text blocks up to this index
                     text_count = 0
                     for i, block in enumerate(page.get("blocks", [])):
                         if block.get("type") == "text":
@@ -319,21 +315,17 @@ def build_html(data, source_blocks=None, document_with_associations=None, page_i
 
         elif block_type == "caption":
 
-            # Check if this caption is associated with an image
             block_id = source_block.get("id")
             if block_id in caption_to_image_map:
                 image_info = caption_to_image_map[block_id]
                 image_block = image_info["image"]
 
-                # Generate alt text for the image
                 image_path = image_block["path"]
                 alt_text_result = generate_alt_text_for_image(image_path)
                 alt_text = alt_text_result.get("alt_text", "")
 
-                # Escape alt text for safety
                 alt_text_escaped = escape_html(alt_text)
 
-                # Render figure with image and caption
                 html.append(
                     f'<figure class="article-figure"><img class="article-image" src="images/{image_block["filename"]}" '
                     f'width="{image_block["width"]}" '
@@ -341,7 +333,6 @@ def build_html(data, source_blocks=None, document_with_associations=None, page_i
                     f'alt="{alt_text_escaped}"><figcaption class="article-caption">{escape_html(text)}</figcaption></figure>'
                 )
             else:
-                # Orphan caption with no associated image
                 html.append(
                     f'<figure class="article-figure"><figcaption class="article-caption">{escape_html(text)}</figcaption></figure>'
                 )

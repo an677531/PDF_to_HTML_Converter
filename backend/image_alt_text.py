@@ -34,7 +34,6 @@ def generate_alt_text_for_image(image_path, max_length=200):
         }
 
     try:
-        # Read and encode the image
         with open(image_path, "rb") as img_file:
             image_data = base64.b64encode(img_file.read()).decode("utf-8")
     except Exception as e:
@@ -65,10 +64,8 @@ Respond with a JSON object containing:
 Return ONLY valid JSON with no additional text, markdown, or code fences."""
 
     try:
-        # Try using llava first (vision model)
         result = ask_ollama_with_image(prompt, image_data, model="llava")
 
-        # Parse the response
         try:
             data = json.loads(result.strip())
             return {
@@ -78,7 +75,6 @@ Return ONLY valid JSON with no additional text, markdown, or code fences."""
                 "model_used": "llava"
             }
         except json.JSONDecodeError:
-            # If parsing fails, try a retry
             retry_result = ask_ollama_with_image(
                 prompt + "\n\nYour previous response was not valid JSON. "
                 "Return only valid JSON with no markdown or code fences.",
@@ -94,7 +90,7 @@ Return ONLY valid JSON with no additional text, markdown, or code fences."""
             }
 
     except (RuntimeError, json.JSONDecodeError) as vision_error:
-        # Fallback: Try with text-only model and context-based description
+        # Use the text-only model when vision analysis is unavailable.
         print(f"[Alt Text] Vision model unavailable ({str(vision_error)}). Using fallback.")
 
         try:
@@ -122,9 +118,7 @@ Guidelines:
             response.raise_for_status()
             alt_text = response.json().get("response", "").strip()
 
-            # Clean up the response
             if alt_text:
-                # Remove markdown or other artifacts
                 alt_text = alt_text.split('\n')[0].strip()
                 if len(alt_text) > max_length:
                     alt_text = alt_text[:max_length].strip()
@@ -168,8 +162,8 @@ def ask_ollama_with_image(prompt, image_data, model="llava"):
         "prompt": prompt,
         "images": [image_data],
         "stream": False,
-        "temperature": 0.3,  # Lower temperature for more deterministic output
-        "num_predict": 512   # Shorter output for alt text
+        "temperature": 0.3,
+        "num_predict": 512
     }
 
     try:

@@ -1,47 +1,3 @@
-/*
-===========================================================
-ACCESSIBLE NEWS AI CONVERTER PROJECT NOTES
-===========================================================
-
-CURRENT STATUS:
-Frontend prototype completed.
-
-Implemented:
-- PDF file selection
-- Local PDF preview
-- FormData upload preparation
-
-CURRENTLY STOPPED BEFORE:
-Python backend implementation.
-
-NEXT DEVELOPMENT PHASE:
-Build Flask/Python backend responsible for:
-
-1. Receiving uploaded PDFs
-2. Extracting:
-   - article text
-   - images
-   - captions
-   - layout information
-
-3. Creating structured document JSON
-
-4. Connecting to Ollama:
-   - article semantic formatter
-   - image accessibility agent
-   - accessibility reviewer
-
-5. Returning:
-   {
-      html: generated accessible article,
-      issues: review findings
-   }
-
-The frontend only:
-UPLOAD -> REQUEST -> DISPLAY RESULTS
-
-===========================================================
-*/
 const button = document.getElementById("convert");
 const downloadLink = document.getElementById("downloadBundle");
 const loadingIndicator = document.getElementById("loadingIndicator");
@@ -49,7 +5,6 @@ const loadingText = document.getElementById("loadingText");
 const progressContainer = document.getElementById("conversionProgress");
 const progressItems = document.getElementById("progressItems");
 
-// Helper function to add/update progress item
 function updateProgress(fileName, status, message) {
     let progressItem = document.getElementById(`progress-${fileName}`);
 
@@ -88,7 +43,6 @@ button.onclick = async () => {
         return;
     }
 
-    // Show loading indicator and progress
     loadingIndicator.style.display = "flex";
     progressContainer.style.display = "block";
     progressItems.innerHTML = "";
@@ -98,7 +52,6 @@ button.onclick = async () => {
     let errorCount = 0;
     let lastResult = null;
 
-    // Process each file sequentially
     for (let i = 0; i < files.length; i++) {
         const file = files[i];
         const fileName = file.name;
@@ -109,7 +62,6 @@ button.onclick = async () => {
             const form = new FormData();
             form.append("pdf", file);
 
-            // Show PDF in viewer for current file
             document.getElementById("pdfViewer").src = URL.createObjectURL(file);
             loadingText.textContent = `Processing ${i + 1} of ${files.length}: ${fileName}...`;
 
@@ -141,7 +93,6 @@ button.onclick = async () => {
             const result = await response.json();
             lastResult = result;
 
-            // Display preview and issues for the currently processed file
             document.getElementById("preview").innerHTML = result.html;
 
             const issuesList = document.getElementById("issues");
@@ -176,11 +127,9 @@ button.onclick = async () => {
         }
     }
 
-    // Hide loading indicator
     loadingIndicator.style.display = "none";
     button.disabled = false;
 
-    // Show completion summary
     const summary = `Completed: ${successCount} successful, ${errorCount} failed`;
     loadingText.textContent = summary;
 

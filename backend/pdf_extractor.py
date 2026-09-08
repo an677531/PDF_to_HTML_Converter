@@ -9,10 +9,6 @@ def extract_pdf(pdf_bytes):
         "pages": []
     }
 
-    # -----------------------------------------
-    # Create image output directory
-    # -----------------------------------------
-
     extracted_images_dir = os.path.join(
         os.path.dirname(__file__),
         "extracted_images"
@@ -20,7 +16,6 @@ def extract_pdf(pdf_bytes):
 
     os.makedirs(extracted_images_dir, exist_ok=True)
 
-    # Open PDF from memory
     pdf = fitz.open(
         stream=pdf_bytes,
         filetype="pdf"
@@ -29,10 +24,6 @@ def extract_pdf(pdf_bytes):
     document["metadata"] = {
         "page_count": len(pdf)
     }
-
-    # -----------------------------------------
-    # Process each page
-    # -----------------------------------------
 
     for page_number, page in enumerate(pdf, start=1):
 
@@ -43,15 +34,10 @@ def extract_pdf(pdf_bytes):
             "blocks": []
         }
 
-        # -----------------------------------------
-        # Extract text
-        # -----------------------------------------
-
         text_blocks = page.get_text("dict")["blocks"]
 
         for block in text_blocks:
 
-            # type 0 = text
             if block["type"] != 0:
                 continue
 
@@ -79,14 +65,6 @@ def extract_pdf(pdf_bytes):
                 "text": text
             })
 
-        # -----------------------------------------
-        # Extract images
-        # -----------------------------------------
-
-                # -----------------------------------------
-        # Extract images
-        # -----------------------------------------
-
         for image_index, image in enumerate(
             page.get_images(full=True),
             start=1
@@ -107,11 +85,9 @@ def extract_pdf(pdf_bytes):
                 filename
             )
 
-            # Save the actual image to disk
             with open(image_path, "wb") as image_file:
                 image_file.write(image_data["image"])
 
-            # Find where this image appears on the page
             image_rects = page.get_image_rects(xref)
 
             for rect_index, rect in enumerate(image_rects):

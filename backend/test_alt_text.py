@@ -7,7 +7,6 @@ import os
 import sys
 import subprocess
 
-# Add parent dir to path
 sys.path.insert(0, os.path.dirname(__file__))
 
 from image_alt_text import generate_alt_text_for_image

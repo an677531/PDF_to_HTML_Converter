@@ -54,7 +54,6 @@ def associate_page_images(page):
     image_blocks = []
     other_blocks = []
 
-    # Separate blocks by type
     for idx, block in enumerate(page.get("blocks", [])):
         block_with_idx = {**block, "original_index": idx}
 
@@ -65,7 +64,6 @@ def associate_page_images(page):
         else:
             other_blocks.append(block_with_idx)
 
-    # For each image, find its caption
     image_associations = {}
 
     for image_block in image_blocks:
@@ -79,7 +77,6 @@ def associate_page_images(page):
             "captions": caption_blocks
         }
 
-    # Reconstruct page with metadata about associations
     enhanced_page = {
         "page_number": page["page_number"],
         "width": page.get("width"),
@@ -91,7 +88,6 @@ def associate_page_images(page):
     for idx, block in enumerate(page.get("blocks", [])):
         enhanced_block = block.copy()
 
-        # Mark text blocks that are captions
         if block["type"] == "text":
             enhanced_block["is_caption"] = False
             enhanced_block["caption_for_image_index"] = None
@@ -135,36 +131,26 @@ def find_caption_blocks(image_bbox, text_blocks, max_distance=150):
         text_bbox = text_block["bbox"]
         txt_x0, txt_y0, txt_x1, txt_y1 = text_bbox
 
-        # Calculate vertical distance
-        # Negative if text is above image, positive if below
         if txt_y1 < img_y0:
-            # Text is above image
             vertical_distance = img_y0 - txt_y1
             position = "above"
         elif txt_y0 > img_y1:
-            # Text is below image
             vertical_distance = txt_y0 - img_y1
             position = "below"
         else:
-            # Text overlaps vertically with image - not a caption
             vertical_distance = float('inf')
             position = "overlapping"
 
         if vertical_distance > max_distance:
             continue
 
-        # Calculate horizontal overlap
-        # If text is directly above/below, prefer good horizontal alignment
         x_overlap = max(0, min(img_x1, txt_x1) - max(img_x0, txt_x0))
         text_width = txt_x1 - txt_x0
         overlap_ratio = x_overlap / text_width if text_width > 0 else 0
 
-        # Calculate total proximity score (lower is better)
-        # Prefer text that is close vertically and aligned horizontally
         proximity_score = vertical_distance
 
         if overlap_ratio < 0.3:
-            # Penalize text that doesn't overlap much horizontally
             proximity_score += 50
 
         candidates.append({
@@ -177,10 +163,8 @@ def find_caption_blocks(image_bbox, text_blocks, max_distance=150):
             "proximity_score": proximity_score
         })
 
-    # Sort by proximity score and return top candidates
     candidates.sort(key=lambda x: x["proximity_score"])
 
-    # Usually 1-2 blocks are captions; return top 2
     return candidates[:2]
 
 
@@ -222,7 +206,7 @@ def get_figure_element_for_image(
             "path": image_block["path"],
             "width": image_block["width"],
             "height": image_block["height"],
-            "alt_text": None  # Will be filled in by vision AI
+            "alt_text": None
         },
         "captions": []
     }

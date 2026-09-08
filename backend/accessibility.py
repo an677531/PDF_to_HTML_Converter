@@ -52,10 +52,6 @@ HTML TO REVIEW:
 
     result = ask_ollama(prompt)
 
-    # -----------------------------------------
-    # Convert AI response into Python data
-    # -----------------------------------------
-
     try:
 
         review = json.loads(result)

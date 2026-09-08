@@ -19,7 +19,6 @@ import json
 from pathlib import Path
 
 
-# Colors for output
 GREEN = '\033[92m'
 RED = '\033[91m'
 YELLOW = '\033[93m'
@@ -58,7 +57,6 @@ class IntegrationTest:
                 stderr=subprocess.DEVNULL
             )
 
-            # Wait for server to start
             for attempt in range(10):
                 try:
                     response = requests.get(f"{self.base_url}/")
@@ -163,7 +161,6 @@ class IntegrationTest:
 
             data = response.json()
 
-            # Verify response structure
             if "html" not in data:
                 self.log("Response missing 'html' field", "FAIL")
                 self.test_results.append(("PDF Conversion", False))
@@ -174,7 +171,6 @@ class IntegrationTest:
                 self.test_results.append(("PDF Conversion", False))
                 return False
 
-            # Verify HTML content
             html = data["html"]
             if "<article>" not in html or "</article>" not in html:
                 self.log("HTML missing article tags", "FAIL")
@@ -259,19 +255,15 @@ class IntegrationTest:
             data = response.json()
             html = data["html"]
 
-            # Check for image references
             if "/extracted_images/" in html:
                 self.log("HTML contains image references", "PASS")
 
-                # Count figures
                 figure_count = html.count("<figure>")
                 self.log(f"  Figures found: {figure_count}", "INFO")
 
-                # Check for figcaptions
                 figcaption_count = html.count("<figcaption>")
                 self.log(f"  Figcaptions found: {figcaption_count}", "INFO")
 
-                # Check for alt attributes
                 import re
                 alt_count = len(re.findall(r'alt="[^"]*"', html))
                 self.log(f"  Alt text attributes found: {alt_count}", "INFO")
@@ -359,13 +351,11 @@ class IntegrationTest:
         print(f"{BLUE}FULL STACK INTEGRATION TEST{RESET}")
         print("=" * 60 + "\n")
 
-        # Start server
         if not self.start_server():
             self.log("Cannot proceed without server", "FAIL")
             return False
 
         try:
-            # Run all tests
             self.test_frontend_serves()
             self.test_static_files()
             self.test_pdf_conversion()
@@ -376,7 +366,6 @@ class IntegrationTest:
         finally:
             self.stop_server()
 
-        # Print results
         return self.print_results()
 
 
