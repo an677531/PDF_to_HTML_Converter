@@ -48,7 +48,7 @@ class ClassificationTests(unittest.TestCase):
             html = agents.format_article(sample_document())
 
         self.assertIn(SOURCE_TEXT, html)
-        self.assertIn("<p>", html)
+        self.assertIn('class="article-paragraph"', html)
 
     def test_json_surrounded_by_fences(self):
 
@@ -67,7 +67,37 @@ class ClassificationTests(unittest.TestCase):
             html = agents.format_article(sample_document())
 
         self.assertEqual(ask.call_count, 2)
-        self.assertIn("<h1>", html)
+        self.assertIn('class="article-heading article-heading--1"', html)
+
+    def test_article_uses_semantic_class_contract(self):
+
+        response = {
+            "blocks": [
+                {"id": "page-1-text-1", "type": "heading", "level": 1},
+                {"id": "page-1-text-2", "type": "byline"},
+                {"id": "page-1-text-3", "type": "paragraph"}
+            ]
+        }
+
+        document = {
+            "metadata": {},
+            "pages": [{
+                "page_number": 1,
+                "blocks": [
+                    {"type": "text", "bbox": [0, 0, 1, 1], "text": "Headline"},
+                    {"type": "text", "bbox": [0, 0, 1, 1], "text": "By Jane Doe"},
+                    {"type": "text", "bbox": [0, 0, 1, 1], "text": "Body copy"}
+                ]
+            }]
+        }
+
+        with patch.object(agents, "ask_ollama", return_value=str(response).replace("'", '"')):
+            html = agents.format_article(document)
+
+        self.assertIn('<article class="article">', html)
+        self.assertIn('class="article-heading article-heading--1"', html)
+        self.assertIn('class="article-byline"', html)
+        self.assertIn('class="article-paragraph"', html)
 
     def test_malformed_json_on_both_attempts(self):
 

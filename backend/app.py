@@ -51,6 +51,26 @@ def save_html_bundle(html, document):
     bundle_html = html.replace('src="/extracted_images/', 'src="images/')
     bundle_html = bundle_html.replace('src="images/', 'src="images/')
 
+    stylesheet_source = os.path.join(PROJECT_ROOT, "frontend", "article-placeholder.css")
+    stylesheet_target = os.path.join(bundle_dir, "article-placeholder.css")
+    if os.path.exists(stylesheet_source):
+        shutil.copy2(stylesheet_source, stylesheet_target)
+
+    bundle_html = (
+        "<!DOCTYPE html>\n"
+        "<html lang=\"en\">\n"
+        "<head>\n"
+        "  <meta charset=\"utf-8\">\n"
+        "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n"
+        "  <title>Generated Article</title>\n"
+        "  <link rel=\"stylesheet\" href=\"article-placeholder.css\">\n"
+        "</head>\n"
+        "<body>\n"
+        f"{bundle_html}\n"
+        "</body>\n"
+        "</html>\n"
+    )
+
     html_path = os.path.join(bundle_dir, "index.html")
     with open(html_path, "w", encoding="utf-8") as html_file:
         html_file.write(bundle_html)

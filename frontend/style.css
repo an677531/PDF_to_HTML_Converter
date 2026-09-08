@@ -246,32 +246,31 @@ button:disabled {
     background: #fafafa;
 }
 
-#preview h1,
-#preview h2,
-#preview h3 {
-    margin: 1rem 0 .5rem;
+#preview .article {
+    max-width: 100%;
+    padding: 0;
+    background: transparent;
 }
 
-#preview p {
+#preview .article-heading {
+    margin-top: 1.25rem;
+}
+
+#preview .article-paragraph,
+#preview .article-byline,
+#preview .article-caption {
     margin-bottom: 1rem;
 }
 
-#preview img {
+#preview .article-image {
     max-width: 100%;
     height: auto;
     border-radius: 8px;
 }
 
-#preview figure {
+#preview .article-figure {
     margin: 1.5rem 0;
     text-align: center;
-}
-
-#preview figcaption {
-    margin-top: 0.5rem;
-    font-style: italic;
-    color: #666;
-    font-size: 0.95rem;
 }
 
 /***********Issues***********/

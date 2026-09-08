@@ -244,7 +244,7 @@ def clean_json_response(result):
 
 def build_html(data, source_blocks=None, document_with_associations=None, page_image_associations=None):
 
-    html = ["<article>"]
+    html = ['<article class="article">']
 
     classifications = {
         block.get("id"): block
@@ -302,19 +302,19 @@ def build_html(data, source_blocks=None, document_with_associations=None, page_i
                 level = 2
 
             html.append(
-                f"<h{level}>{escape_html(text)}</h{level}>"
+                f'<h{level} class="article-heading article-heading--{level}">{escape_html(text)}</h{level}>'
             )
 
         elif block_type == "paragraph":
 
             html.append(
-                f"<p>{escape_html(text)}</p>"
+                f'<p class="article-paragraph">{escape_html(text)}</p>'
             )
 
         elif block_type == "byline":
 
             html.append(
-                f'<p class="byline">{escape_html(text)}</p>'
+                f'<p class="article-byline">{escape_html(text)}</p>'
             )
 
         elif block_type == "caption":
@@ -335,27 +335,27 @@ def build_html(data, source_blocks=None, document_with_associations=None, page_i
 
                 # Render figure with image and caption
                 html.append(
-                    f'<figure><img src="images/{image_block["filename"]}" '
+                    f'<figure class="article-figure"><img class="article-image" src="images/{image_block["filename"]}" '
                     f'width="{image_block["width"]}" '
                     f'height="{image_block["height"]}" '
-                    f'alt="{alt_text_escaped}"><figcaption>{escape_html(text)}</figcaption></figure>'
+                    f'alt="{alt_text_escaped}"><figcaption class="article-caption">{escape_html(text)}</figcaption></figure>'
                 )
             else:
                 # Orphan caption with no associated image
                 html.append(
-                    f'<figure><figcaption>{escape_html(text)}</figcaption></figure>'
+                    f'<figure class="article-figure"><figcaption class="article-caption">{escape_html(text)}</figcaption></figure>'
                 )
 
         elif block_type == "list":
 
             html.append(
-                f"<p>{escape_html(text)}</p>"
+                f'<p class="article-list">{escape_html(text)}</p>'
             )
 
         else:
 
             html.append(
-                f"<p>{escape_html(text)}</p>"
+                f'<p class="article-paragraph">{escape_html(text)}</p>'
             )
 
     html.append("</article>")

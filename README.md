@@ -229,6 +229,75 @@ python3 -m http.server 8080
 
 ---
 
+## Replacing the Placeholder CSS
+
+The converter generates semantic HTML classes rather than article-specific markup, so the visual design should be swapped via CSS instead of rewriting the HTML structure.
+
+### Current placeholder file
+
+The default temporary stylesheet lives in:
+
+- frontend/article-placeholder.css
+
+This file is intentionally neutral so a future project can replace it with the final publication theme without changing the generator logic.
+
+### Required class contract
+
+The generated article HTML should continue using the same semantic classes:
+
+```html
+<article class="article">
+  <h1 class="article-heading article-heading--1">Title</h1>
+  <p class="article-byline">By Jane Doe</p>
+  <p class="article-paragraph">Body text</p>
+  <figure class="article-figure">
+    <img class="article-image" src="images/example.png" alt="Example image">
+    <figcaption class="article-caption">Caption</figcaption>
+  </figure>
+</article>
+```
+
+Do not rename these classes unless you also update the generator in backend/agents.py and the stylesheet selectors together.
+
+### How to swap in the final CSS
+
+#### Option 1: Replace the placeholder file directly
+
+1. Open frontend/article-placeholder.css
+2. Replace the placeholder variables and selectors with the intended publication styling
+3. Save the file
+4. Refresh the browser
+
+This is the simplest path for stage-one design work.
+
+#### Option 2: Create a new theme file
+
+1. Create a new file such as frontend/theme-brand.css
+2. Copy the same class structure from the placeholder file
+3. Update the HTML to link to the new stylesheet
+4. Keep the generated article classes unchanged
+
+Example:
+
+```html
+<link rel="stylesheet" href="theme-brand.css">
+```
+
+#### Option 3: Update the exported bundle CSS
+
+When the converter creates a downloadable article bundle, it copies the stylesheet into the output folder and links it in the export HTML. If you want to use a different final stylesheet for exports:
+
+1. Create the new CSS file
+2. Place it in the same folder as the exported HTML file
+3. Update the link inside the generated HTML to match the new file name
+4. Keep the semantic class names the same
+
+### Important rule
+
+The generator owns the article structure. The stylesheet owns the visual appearance. As long as the semantic classes remain stable, any future design can replace the placeholder without breaking the converter flow.
+
+---
+
 ## Testing the Application
 
 ### Test via API (cURL)

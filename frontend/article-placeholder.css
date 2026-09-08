@@ -1,0 +1,84 @@
+/*
+ * Placeholder universal stylesheet for generated articles.
+ * This is intentionally neutral and easy to replace with a final brand theme.
+ * The article HTML should keep using semantic classes listed below.
+ */
+
+:root {
+    --article-bg: #ffffff;
+    --article-text: #111111;
+    --article-muted: #5a5a5a;
+    --article-border: #e6e6e6;
+    --article-accent: #1f4d75;
+    --article-font-body: "Segoe UI", Arial, sans-serif;
+    --article-font-heading: Georgia, "Times New Roman", serif;
+    --article-max-width: 72ch;
+}
+
+.article {
+    max-width: var(--article-max-width);
+    margin: 0 auto;
+    padding: 2rem 1.25rem;
+    background: var(--article-bg);
+    color: var(--article-text);
+    font-family: var(--article-font-body);
+    line-height: 1.7;
+}
+
+.article-heading {
+    margin: 1.5em 0 0.5em;
+    font-family: var(--article-font-heading);
+    line-height: 1.2;
+    font-weight: 700;
+    color: var(--article-text);
+}
+
+.article-heading--1 {
+    font-size: clamp(2rem, 3vw, 3rem);
+}
+
+.article-heading--2 {
+    font-size: clamp(1.5rem, 2vw, 2.2rem);
+}
+
+.article-heading--3 {
+    font-size: clamp(1.2rem, 1.6vw, 1.6rem);
+}
+
+.article-byline {
+    margin: 0 0 1.5rem;
+    font-size: 0.95rem;
+    font-style: italic;
+    color: var(--article-muted);
+}
+
+.article-paragraph {
+    margin: 0 0 1.25rem;
+}
+
+.article-list {
+    margin: 0 0 1.25rem 1.5rem;
+    padding-left: 0.5rem;
+}
+
+.article-figure {
+    margin: 2rem 0;
+}
+
+.article-image {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    border: 1px solid var(--article-border);
+    border-radius: 6px;
+}
+
+.article-caption {
+    margin-top: 0.65rem;
+    font-size: 0.9rem;
+    color: var(--article-muted);
+}
+
+.article a {
+    color: var(--article-accent);
+}
